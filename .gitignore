@@ -1,0 +1,32 @@
+# security
+.env
+
+# data preservation
+cv_storage/*.pdf
+cv_storage/elaborati/
+rag_knowledge/*.pdf
+rag_knowledge/*.md
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# virtual environments files
+venv/
+.venv/
+env/
+ENV/
+
+# test files
+tests/raw_text.txt
+tests/llm_result.txt
+
+# === Docker ===
+.database_data/
+
+# === OS ===
+Thumbs.db
+ehthumbs.db
+Desktop.ini
