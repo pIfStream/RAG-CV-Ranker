@@ -8,3 +8,4 @@ docling>=2.0.0
 psycopg[binary]
 pgvector
 pypdf
+python-dotenv

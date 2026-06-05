@@ -1,9 +1,11 @@
 version: '3.8'
 
 services:
+  # Database Service (Postgres with pgvector extension)
   db:
     image: ankane/pgvector:latest
     container_name: cv_postgres_db
+    restart: always
     environment:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword

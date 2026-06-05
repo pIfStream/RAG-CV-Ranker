@@ -1,6 +1,4 @@
 import os
-import tkinter as tk
-from tkinter import filedialog
 from docling.document_converter import DocumentConverter
 
 # extracts text from a file and returns it as a string
@@ -12,7 +10,8 @@ def extract_text_from_file(file_path: str) -> str:
 
 # helper function to open a file dialog and get the path of the selected file
 def get_local_file_via_ui() -> str:
-    
+    import tkinter as tk
+    from tkinter import filedialog
     root = tk.Tk()
     root.withdraw() 
     root.attributes('-topmost', True)

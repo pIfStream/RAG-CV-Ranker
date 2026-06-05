@@ -5,12 +5,10 @@ from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
 from pypdf import PdfReader
 
-
 embed_model = OllamaEmbedding(
     model_name="nomic-embed-text",
     request_timeout=300.0,  
 )
-
 
 llm = Ollama(
     model="gemma4:latest",  
@@ -30,7 +28,6 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
     page_texts = [page.extract_text() or "" for page in reader.pages]
     text = "\n\n".join(page_texts).strip()
     return text
-
 
 def load_and_index_documents(data_dir="data"):
     """Load PDF documents and create vector index"""
@@ -73,55 +70,11 @@ def create_query_engine(index, similarity_top_k=3):
 
     return query_engine
 
-def test_rag_system():
-    """Test the RAG system with sample queries"""
+def build_rag_query_engine(data_dir="rag_knowledge", similarity_top_k=3):
+    index = load_and_index_documents(data_dir)
+    return create_query_engine(index, similarity_top_k)
 
-    try:
-        # Load documents and create index
-        index = load_and_index_documents()
+def retrieve_relevant_context(query_engine, query_text: str) -> str:
+    response = query_engine.query(query_text)
+    return str(response)
 
-        # Create query engine
-        query_engine = create_query_engine(index)
-
-        # Sample test queries
-        test_queries = [
-            "Summarize this document in 3 lines",
-            "What are the main topics covered in these documents?",
-        ]
-
-        print("RAG System Test Results")
-        print("=" * 50)
-
-        for i, query in enumerate(test_queries, 1):
-            print(f"\nTest {i}: {query}")
-            print("-" * 40)
-
-            try:
-                response = query_engine.query(query)
-                print(f"Response: {response}")
-                print(f"Status: SUCCESS")
-            except Exception as e:
-                print(f"Error: {str(e)}")
-                print(f"Status: FAILED")
-
-            print("-" * 40)
-
-        return True
-
-    except Exception as e:
-        print(f"System Error: {str(e)}")
-        return False
-
-# Main execution
-if __name__ == "__main__":
-
-    print("Starting RAG Pipeline Test...")
-
-    # Test the complete system
-    success = test_rag_system()
-
-    if success:
-        print("\nRAG system is working correctly!")
-        print("You can now use the query_engine to ask questions about your documents.")
-    else:
-        print("\nRAG system test failed. Check the error messages above.")

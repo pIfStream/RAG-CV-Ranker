@@ -3,7 +3,9 @@
 
 # data preservation
 cv_storage/*.pdf
-cv_storage/elaborati/
+cv_storage/*.docx
+cv_storage/*.txt
+cv_storage/processed/
 rag_knowledge/*.pdf
 rag_knowledge/*.md
 

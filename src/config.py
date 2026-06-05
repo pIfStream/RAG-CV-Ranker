@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Ollama config
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "https://ollama.com")

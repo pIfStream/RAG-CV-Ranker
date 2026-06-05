@@ -4,8 +4,12 @@ from datetime import datetime
 
 # --- Substructures ---
 
-class Metadata(BaseModel):
-    ingestion_date: str = Field(description="ISO 8601 processing timestamp")
+class CandidateData(BaseModel):
+    name: str
+    age: Optional[int]
+    email: Optional[str]
+    phone: Optional[str]
+
 
 class CandidateProfile(BaseModel):
     current_role: str
@@ -50,8 +54,7 @@ class ParsedData(BaseModel):
 # --- Main Structure ---
 
 class CVJSONSchema(BaseModel):
-    cv_id: str
-    metadata: Metadata
+    candidate_data: CandidateData
     candidate_profile: CandidateProfile
     feature_index: FeatureIndex
     dimension_scores: DimensionScores
