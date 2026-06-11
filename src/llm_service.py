@@ -22,10 +22,11 @@ def analize_cv_via_llm(parsed_cv_data: str, reference_context: str | None = None
 
 
     instructions = (
-        "Extract the CV data into the specified JSON schema. "
+        "Extract the CV data into the specified JSON schema."
         "Do not alter the structure of the schema and only fill with what's available from the resume. "
         "Do not include any conversational text, preamble, or markdown blocks. "
         "Focus on accuracy for 'dimension_scores' (0.0-10.0)"
+        "You will be analysing data looking for data-analyst role, evaluate accordingly. "
     )
 
     prompt = instructions

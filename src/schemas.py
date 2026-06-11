@@ -25,22 +25,24 @@ class FeatureIndex(BaseModel):
     skills: List[str] = Field(description="Normalized list of skills including synonyms in lowercase for exact matching (e.g, java, k8s)")
     domains: List[str] = Field(description="Industry sectors (e.g., fintech, b2b)")
     seniority: str = Field(description="Normalized level: junior, mid, senior, lead")
-    certifications: List[str]
+    certifications: List[str] = Field(description="List of certifications (e.g., AWS Certified, PMP)")
     languages: List[LanguageSkill]
 
 class DimensionScores(BaseModel):
-    years_of_experience: float = Field(ge=0, le=10)
+    main_cv_role: str = Field(description="The primary role identified from the CV (e.g., software engineer, data scientist)")
     education_level: float = Field(ge=0, le=10)
     skills_breadth: float = Field(ge=0, le=10)
     career_progression: float = Field(ge=0, le=10)
     certifications: float = Field(ge=0, le=10)
     domain_diversity: float = Field(ge=0, le=10)
+    role_fit_score: float = Field(ge=0, le=10, description="A score representing how well the CV matches the target role based on skills, experience, and other factors")
+    hard_skills_gap: List[str] = Field(description="List of important hard skills mentioned in the job description but missing from the CV")
 
 class WorkExperience(BaseModel):
     company: str
     role: str
     duration: str
-    highlights: str
+    main_highlighted_skill: str = Field(description="The most important skill mentioned in this experience, normalized in lowercase for exact matching ")
 
 class Education(BaseModel):
     institution: str

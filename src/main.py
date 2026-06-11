@@ -4,6 +4,7 @@ from src.parser import extract_text_from_file, get_local_file_via_ui
 from src.llm_service import analize_cv_via_llm
 from src.database import initialize_database, insert_cv_data
 from src.rag_service import build_rag_query_engine, retrieve_relevant_context
+from src.score_calculator import calculate_skill_score
 
 # variable to determine wether the application will process a single file selected via UI 
 # or all files in a directory 
@@ -20,9 +21,11 @@ def elaborate_single_cv(file_path: str, rag_engine=None) -> bool:
             reference_context = retrieve_relevant_context(rag_engine, raw_text)
 
         json_data = analize_cv_via_llm(raw_text, reference_context=reference_context)
+        skill_score = calculate_skill_score(json_data)
+        print(f"Calculated skill score: {skill_score:.2f}")
         print("inserting CV data into database...")
 
-        id_db = insert_cv_data(file_path, raw_text, json_data)    
+        id_db = insert_cv_data(file_path, raw_text, json_data, skill_score)
         print(f"CV data inserted into database with ID: {id_db}\n")
         return True
 
