@@ -1,6 +1,19 @@
 {
-  "python": 0.75,
-  "sql": 1.0,
-  "data analysis": 1.25,
-  "machine learning": 1.5
+  "skills": {
+    "python": 0.75,
+    "sql": 1.0,
+    "data analysis": 1.25,
+    "machine learning": 1.5
+  },
+  "tools": {
+    "databricks": 1.75,
+    "azure machine learning": 1.75,
+    "vertex ai": 1.75,
+    "amazon sagemaker": 1.75,
+    "dataiku": 1.75,
+    "knime": 1.75,
+    "rapidminer": 1.75,
+    "h2o.ai": 1.75,
+    "datarobot": 1.75
+  }
 }

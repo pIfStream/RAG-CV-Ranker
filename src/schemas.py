@@ -23,6 +23,7 @@ class LanguageSkill(BaseModel):
 
 class FeatureIndex(BaseModel):
     skills: List[str] = Field(description="Normalized list of skills including synonyms in lowercase for exact matching (e.g, java, k8s)")
+    tools: List[str] = Field(description="Normalized list of tools including synonyms in lowercase for exact matching (e.g., git, docker, jenkins)")
     domains: List[str] = Field(description="Industry sectors (e.g., fintech, b2b)")
     seniority: str = Field(description="Normalized level: junior, mid, senior, lead")
     certifications: List[str] = Field(description="List of certifications (e.g., AWS Certified, PMP)")
@@ -30,9 +31,8 @@ class FeatureIndex(BaseModel):
 
 class DimensionScores(BaseModel):
     main_cv_role: str = Field(description="The primary role identified from the CV (e.g., software engineer, data scientist)")
-    education_level: float = Field(ge=0, le=10)
-    skills_breadth: float = Field(ge=0, le=10)
-    career_progression: float = Field(ge=0, le=10)
+    education_level: float = Field(ge=0, le=10, description="A score representing the education level, normalized to a 0-10 scale (e.g., high school=2, bachelor's=5, master's=7, PhD=10)")
+    career_progression: float = Field(ge=0, le=10, description="A score representing career progression, normalized to a 0-10 scale")
     certifications: float = Field(ge=0, le=10)
     domain_diversity: float = Field(ge=0, le=10)
     role_fit_score: float = Field(ge=0, le=10, description="A score representing how well the CV matches the target role based on skills, experience, and other factors")
@@ -41,8 +41,8 @@ class DimensionScores(BaseModel):
 class WorkExperience(BaseModel):
     company: str
     role: str
-    duration: str
-    main_highlighted_skill: str = Field(description="The most important skill mentioned in this experience, normalized in lowercase for exact matching ")
+    duration: int = Field(description="Duration in months")
+    main_highlighted_skill: str = Field(description="The most important skill in this experience, normalized in lowercase for exact matching")
 
 class Education(BaseModel):
     institution: str

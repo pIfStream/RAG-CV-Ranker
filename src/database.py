@@ -1,8 +1,21 @@
 import json
-import psycopg
 from src.config import DATABASE_URL
 
+try:
+    import psycopg
+except ImportError:  # pragma: no cover
+    psycopg = None
+
+
+def _require_psycopg():
+    if psycopg is None:
+        raise RuntimeError(
+            "psycopg is required for database operations. Install it before using database functions."
+        )
+
+
 def initialize_database():
+    _require_psycopg()
     with psycopg.connect(DATABASE_URL) as conn:
         conn.execute("CREATE EXTENSION IF NOT EXISTS vector;") # create vector extension if not exists
         with conn.cursor() as cur:

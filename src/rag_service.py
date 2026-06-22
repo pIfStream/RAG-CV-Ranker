@@ -23,22 +23,20 @@ Settings.llm = llm
 def extract_text_from_pdf(pdf_path: Path) -> str:
     reader = PdfReader(pdf_path)
     if reader.is_encrypted:
-        raise ValueError(f"PDF file is encrypted: {pdf_path}. Please decrypt it before indexing.")
+        raise ValueError(f"PDF file is encrypted: {pdf_path}.")
 
     page_texts = [page.extract_text() or "" for page in reader.pages]
     text = "\n\n".join(page_texts).strip()
     return text
 
 def load_and_index_documents(data_dir="data"):
-    """Load PDF documents and create vector index"""
-
     data_path = Path(data_dir)
     if not data_path.exists():
-        raise FileNotFoundError(f"Data directory '{data_dir}' not found. Please create it and add your PDF files.")
+        raise FileNotFoundError(f"Data directory '{data_dir}' not found.")
 
     pdf_files = sorted(data_path.glob("*.pdf"))
     if not pdf_files:
-        raise ValueError(f"No PDF files found in {data_dir}. Please add PDF documents.")
+        raise ValueError(f"No PDF files found in {data_dir}.")
 
     docs = []
     for pdf_file in pdf_files:
@@ -60,8 +58,6 @@ def load_and_index_documents(data_dir="data"):
     return index
 
 def create_query_engine(index, similarity_top_k=3):
-    """Create query engine with specified retrieval parameters"""
-
     query_engine = index.as_query_engine(
         llm=llm,
         similarity_top_k=similarity_top_k, 
