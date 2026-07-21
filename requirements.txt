@@ -9,3 +9,6 @@ psycopg[binary]
 pgvector
 pypdf
 python-dotenv
+fastapi
+uvicorn[standard]
+python-multipart

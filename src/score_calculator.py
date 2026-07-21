@@ -199,11 +199,18 @@ def calculate_skill_score(
     llm_output: dict,
     config_path: Optional[str] = None,
     default_weight: float = DEFAULT_SKILL_WEIGHT,
+    score_config_override: Optional[dict] = None,
 ) -> float:
     skills = get_skills_from_llm_output(llm_output)
     tools = get_tools_from_llm_output(llm_output)
-    skill_overrides = load_skill_weights(config_path)
-    tool_overrides = load_tool_weights(config_path)
+
+    if score_config_override is not None:
+        skill_overrides = _normalize_weight_map(score_config_override.get("skills", {}))
+        tool_overrides = _normalize_weight_map(score_config_override.get("tools", {}))
+    else:
+        skill_overrides = load_skill_weights(config_path)
+        tool_overrides = load_tool_weights(config_path)
+
     experience_skill_months = get_experience_skill_months(llm_output)
 
     total_score = 0.0
@@ -279,6 +286,120 @@ def main() -> int:
     except Exception as error:
         print(f"Error: {error}")
         return 1
+
+
+# ─── Funzioni per API ───────────────────────────────
+
+def calculate_skill_score_breakdown(
+    llm_output: dict,
+    config_path: Optional[str] = None,
+    default_weight: float = DEFAULT_SKILL_WEIGHT,
+    score_config_override: Optional[dict] = None,
+) -> dict:
+    """Calcola e restituisce il dettaglio completo del punteggio."""
+    skills = get_skills_from_llm_output(llm_output)
+    tools = get_tools_from_llm_output(llm_output)
+
+    if score_config_override is not None:
+        skill_overrides = _normalize_weight_map(score_config_override.get("skills", {}))
+        tool_overrides = _normalize_weight_map(score_config_override.get("tools", {}))
+    else:
+        skill_overrides = load_skill_weights(config_path)
+        tool_overrides = load_tool_weights(config_path)
+
+    experience_skill_months = get_experience_skill_months(llm_output)
+
+    skill_score_total = 0.0
+    skills_breakdown = []
+
+    for skill in skills:
+        normalized_skill = skill.strip().lower()
+        if not normalized_skill:
+            continue
+
+        skill_weight = skill_overrides.get(normalized_skill, default_weight)
+        skill_score_total += skill_weight
+        exp_bonus = 0.0
+
+        if normalized_skill in skill_overrides and normalized_skill in experience_skill_months:
+            exp_bonus = 1.0 + (experience_skill_months[normalized_skill] / 12.0)
+            skill_score_total += exp_bonus
+
+        skills_breakdown.append({
+            "skill": normalized_skill,
+            "weight": skill_weight,
+            "experience_bonus": round(exp_bonus, 2),
+            "total": round(skill_weight + exp_bonus, 2),
+        })
+
+    tools_score = 0.0
+    for tool in tools:
+        normalized_tool = tool.strip().lower()
+        if not normalized_tool:
+            continue
+        tools_score += tool_overrides.get(normalized_tool, default_weight)
+
+    dimension_sum = get_dimension_score_sum(llm_output)
+    role_fit_penalty = get_role_fit_penalty(llm_output)
+    language_bonus = get_language_bonus(llm_output)
+    hard_skills_gap_penalty = get_hard_skills_gap_penalty(llm_output, skill_overrides)
+
+    total_score = (
+        skill_score_total
+        + tools_score
+        + dimension_sum
+        + role_fit_penalty
+        + language_bonus
+        + hard_skills_gap_penalty
+    )
+
+    # Skills mancanti (hard skills gap)
+    dimension_scores = llm_output.get("dimension_scores", {})
+    missing_skills = []
+    if isinstance(dimension_scores, dict):
+        gap = dimension_scores.get("hard_skills_gap")
+        if isinstance(gap, list):
+            missing_skills = [s for s in gap if isinstance(s, str)]
+
+    return {
+        "total_score": round(total_score, 2),
+        "components": {
+            "skills": round(skill_score_total, 2),
+            "tools": round(tools_score, 2),
+            "dimension_scores_sum": round(dimension_sum, 2),
+            "role_fit_penalty": round(role_fit_penalty, 2),
+            "language_bonus": round(language_bonus, 2),
+            "hard_skills_gap_penalty": round(hard_skills_gap_penalty, 2),
+        },
+        "skills_breakdown": skills_breakdown,
+        "missing_skills": missing_skills,
+        "config_used": {
+            "skills": skill_overrides,
+            "tools": tool_overrides,
+        },
+    }
+
+
+def save_score_config(config_data: dict, config_path: Optional[str] = None) -> None:
+    """Salva la configurazione dei pesi su disco."""
+    path = Path(config_path) if config_path else SCORE_CONFIG_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not isinstance(config_data, dict):
+        raise ValueError("La configurazione deve essere un oggetto JSON")
+
+    existing = {}
+    if path.exists():
+        with path.open("r", encoding="utf-8") as f:
+            existing = json.load(f)
+
+    if "skills" in config_data:
+        existing["skills"] = config_data["skills"]
+    if "tools" in config_data:
+        existing["tools"] = config_data["tools"]
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(existing, f, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":

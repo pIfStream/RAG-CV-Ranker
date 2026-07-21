@@ -1,4 +1,4 @@
-from rag_service import create_query_engine, load_and_index_documents
+from src.rag_service import create_query_engine, load_and_index_documents
 
 
 def test_rag_system():
@@ -6,7 +6,7 @@ def test_rag_system():
 
     try:
         # Load documents and create index
-        index = load_and_index_documents()
+        index = load_and_index_documents(data_dir="rag_knowledge")
 
         # Create query engine
         query_engine = create_query_engine(index)

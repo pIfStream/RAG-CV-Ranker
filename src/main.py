@@ -3,7 +3,7 @@ import shutil
 from src.parser import extract_text_from_file, get_local_file_via_ui
 from src.llm_service import analize_cv_via_llm
 from src.database import initialize_database, insert_cv_data
-from src.rag_service import build_rag_query_engine, retrieve_relevant_context
+from src.rag_service import build_rag_query_engine_from_dir, retrieve_relevant_context
 from src.score_calculator import calculate_skill_score
 
 # variable to determine wether the application will process a single file selected via UI 
@@ -64,11 +64,9 @@ def main():
         processed_dir = os.path.join(cv_directory, "processed")
         os.makedirs(processed_dir, exist_ok=True)
 
-        try:
-            rag_engine = build_rag_query_engine("rag_knowledge")
-        except Exception as e:
-            rag_engine = None
-            print(f"Warning: could not build RAG index: {e}")
+        rag_engine = build_rag_query_engine_from_dir("rag_knowledge")
+        if rag_engine is None:
+            print("Warning: RAG knowledge base not found or empty. Skipping RAG context.")
                 
         for filename in os.listdir(cv_directory):
             # check for valid file extensions

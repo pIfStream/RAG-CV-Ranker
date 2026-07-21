@@ -16,18 +16,24 @@ def _get_ollama_local_client():
         host=OLLAMA_LOCAL_HOST,
     )
 
-def analize_cv_via_llm(parsed_cv_data: str, reference_context: str | None = None) -> dict:
+def analize_cv_via_llm(
+    parsed_cv_data: str,
+    reference_context: str | None = None,
+    instructions_override: str | None = None,
+) -> dict:
     #client = _get_ollama_client() # cloud client for testing purposes
     client = _get_ollama_local_client()
 
 
-    instructions = (
-        "Extract the CV data into the specified JSON schema."
-        "Do not alter the structure of the schema and only fill with what's available from the resume. "
-        "Do not include any conversational text, preamble, or markdown blocks. "
-        "Focus on accuracy for 'dimension_scores' (0.0-10.0)"
-        "You will be analysing data looking for data-analyst role, evaluate accordingly. "
-    )
+    if instructions_override:
+        instructions = instructions_override
+    else:
+        instructions = (
+            "Extract the CV data into the specified JSON schema. "
+            "Do not alter the structure of the schema and only fill with what's available from the resume. "
+            "Do not include any conversational text, preamble, or markdown blocks. "
+            "Focus on accuracy for 'dimension_scores' (0.0-10.0). "
+        )
 
     prompt = instructions
     # include reference context from RAG retrieval
